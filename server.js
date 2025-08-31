@@ -13,7 +13,15 @@ import { runUserCreditReset } from "./cron/updateUserCredits.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// nextjs proxy
+import next from "next";
 import { fileURLToPath } from "url";
+const dev = process.env.NODE_ENV !== "production";
+const app = next({
+  dev,
+});
+const handle = app.getRequestHandler();
 
 const createCacheDirectory = async () => {
   const folderNameOriginals = "gcp-image-cache";
@@ -39,24 +47,29 @@ const corsInstance = cors({
   credentials: true,
 });
 
-const server = express();
+app.prepare().then(() => {
+  const server = express();
 
-server.use("/api/stripe", corsInstance, stripe);
-server.use(
-  "/api",
-  corsInstance,
-  express.json(),
-  express.urlencoded(),
-  cookieParser(),
-  master
-);
+  server.use("/api/stripe", corsInstance, stripe);
+  server.use(
+    "/api",
+    corsInstance,
+    express.json(),
+    express.urlencoded(),
+    cookieParser(),
+    master
+  );
 
-server.listen(process.env.PORT, async () => {
-  createCacheDirectory();
-  console.log(`📂 Created image cache folders.`);
-  runCacheCleanup();
-  console.log(`🧹 Cron TTL cleanup job is running.`);
-  runUserCreditReset();
-  console.log(`🪙  Cron User Credit Reset job is running.`);
-  console.log(`✅ Server is listening at PORT ${process.env.PORT}`);
+  server.all("*", (req, res) => {
+    return handle(req, res);
+  });
+  server.listen(process.env.PORT, async () => {
+    createCacheDirectory();
+    console.log(`📂 Created image cache folders.`);
+    runCacheCleanup();
+    console.log(`🧹 Cron TTL cleanup job is running.`);
+    runUserCreditReset();
+    console.log(`🪙  Cron User Credit Reset job is running.`);
+    console.log(`✅ Server is listening at PORT ${process.env.PORT}`);
+  });
 });
