@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "prodBuild": "next build",
-    "prodStart": "node server.ts",
-    "prodHybrid": "next build && node server.ts"
+    "prodStart": "node server.js",
+    "prodHybrid": "next build && node server.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
