@@ -1,6 +1,6 @@
-const db = require("../dependencies/firestore");
-const jwt = require("jsonwebtoken");
-const { sign } = require("../dependencies/jwt_sign");
+import db from "../dependencies/firestore.js";
+import jwt from "jsonwebtoken";
+import { sign } from "../dependencies/jwt_sign.js";
 
 const SECRET_ACCESS = process.env.SECRET_ACCESS;
 const SECRET_REFRESH = process.env.SECRET_REFRESH;
@@ -57,4 +57,4 @@ const secureCTXgate = async (req, res, next) => {
   }
 };
 
-module.exports = { secureCTXgate };
+export { secureCTXgate };
